@@ -1,0 +1,20 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+
+# Local environment settings
+.env
+config/config.json
+
+# IDE/editor
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Jest
+coverage/
