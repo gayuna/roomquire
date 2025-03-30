@@ -1,7 +1,5 @@
-import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
-import { loadConfig } from '../../src/config/loader';
+import { loadConfig } from 'config/loader';
 
 const CONFIG_PATH = path.resolve(__dirname, '../../config/config.example.json');
 
