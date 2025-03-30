@@ -49,9 +49,9 @@ npx ts-node src/index.ts init
 
 ## Roadmap
 
-- [x] Basic upload/download
-- [x] History tracking
-- [ ] `init` setup wizard
+- [ ] Basic upload/download
+- [ ] History tracking
+- [x] `init` setup wizard
 - [ ] Interactive mode
 - [ ] Package as installable CLI tool (`npm install -g roomquire`)
 - [ ] GUI or web-based companion
