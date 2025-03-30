@@ -11,7 +11,8 @@
   "description": "",
   "dependencies": {
     "aws-sdk": "^2.1692.0",
-    "commander": "^13.1.0"
+    "commander": "^13.1.0",
+    "inquirer": "^12.5.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
