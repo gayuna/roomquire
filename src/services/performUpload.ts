@@ -1,5 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as cliProgressImport from 'cli-progress';
+const cliProgress = cliProgressImport.default || cliProgressImport;
+
 import {
     S3Uploader,
     UploadPartParams,
@@ -37,6 +40,9 @@ async function uploadMultipartFile(bucket: string, key: string, fileBuffer: Buff
     const totalParts = Math.ceil(fileBuffer.length / PART_SIZE);
     const uploadedParts: { PartNumber: number; ETag: string }[] = [];
 
+    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+    progressBar.start(totalParts, 0);
+
     for (let partNumber = 1; partNumber <= totalParts; partNumber++) {
         const start = (partNumber - 1) * PART_SIZE;
         const end = Math.min(start + PART_SIZE, fileBuffer.length);
@@ -52,7 +58,11 @@ async function uploadMultipartFile(bucket: string, key: string, fileBuffer: Buff
 
         const { ETag } = await uploader.uploadPart(partParams);
         uploadedParts.push({ PartNumber: partNumber, ETag });
+
+        progressBar.update(partNumber);
     }
+
+    progressBar.stop();
 
     const completeParams: CompleteMultipartUploadParams = {
         Bucket: bucket,
