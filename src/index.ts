@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { showConfig } from './commands/config';
 import { runInit } from './commands/init';
 import { runUpload } from './commands/upload';
+import { runList } from './commands/list';
 
 const program = new Command();
 
@@ -24,4 +25,10 @@ program
     .command('upload <file>')
     .description('Upload a file to S3')
     .action(runUpload);
+
+program
+    .command('list')
+    .description('List uploaded files in the bucket')
+    .action(runList);
+
 program.parse();
