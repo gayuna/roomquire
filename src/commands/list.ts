@@ -1,5 +1,5 @@
 import { loadConfig } from '../config/loader';
-import { MockS3Uploader } from '../services/s3Uploader';
+import { AwsS3Uploader } from '../services/awsS3Uploader';
 import { format } from 'date-fns';
 
 function formatSize(bytes: number): string {
@@ -10,7 +10,7 @@ function formatSize(bytes: number): string {
 
 export async function runList(): Promise<void> {
     const config = loadConfig();
-    const uploader = new MockS3Uploader();
+    const uploader = new AwsS3Uploader();
     const files = await uploader.listFiles(config.S3_BUCKET);
 
     console.log(`Files in bucket "${config.S3_BUCKET}":`);
