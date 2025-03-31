@@ -1,4 +1,12 @@
 import { FileInfo } from './types';
+import { writeFileSync, mkdirSync } from 'fs';
+import * as path from 'path';
+
+export interface DownloadParams {
+    Bucket: string;
+    Key: string;
+    DestinationPath: string;
+}
 
 export interface S3Uploader {
     createMultipartUpload(params: CreateMultipartUploadParams): Promise<CreateMultipartUploadResult>;
@@ -6,6 +14,7 @@ export interface S3Uploader {
     completeMultipartUpload(params: CompleteMultipartUploadParams): Promise<void>;
     uploadSingle(params: UploadSingleParams): Promise<void>;
     listFiles(bucket: string): Promise<FileInfo[]>;
+    download(params: DownloadParams): Promise<void>;
 }
 
 export interface CreateMultipartUploadParams {
@@ -46,6 +55,8 @@ export interface UploadSingleParams {
 }
 
 export class MockS3Uploader implements S3Uploader {
+    private storage: { [bucket: string]: { [key: string]: Buffer } } = {};
+
     async createMultipartUpload(params: CreateMultipartUploadParams): Promise<CreateMultipartUploadResult> {
         console.log('[Mock] createMultipartUpload', params);
         return { UploadId: 'mock-upload-id' };
@@ -83,5 +94,24 @@ export class MockS3Uploader implements S3Uploader {
                 LastModified: new Date('2025-03-31T01:00:00Z'),
             },
         ];
+    }
+
+    async download(params: DownloadParams): Promise<void> {
+        console.log('[Mock] download', params);
+
+        const { Bucket, Key, DestinationPath } = params;
+
+        const data = this.storage?.[Bucket]?.[Key];
+        if (!data) {
+            throw new Error('Mock file not found in storage');
+        }
+
+        // Ensure directory exists
+        mkdirSync(path.dirname(DestinationPath), { recursive: true });
+
+        // Write mock file
+        writeFileSync(DestinationPath, data);
+
+        return Promise.resolve();
     }
 }

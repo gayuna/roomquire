@@ -4,11 +4,17 @@ import {
     CreateMultipartUploadCommand,
     UploadPartCommand,
     CompleteMultipartUploadCommand,
-    ListObjectsV2Command
+    ListObjectsV2Command,
+    GetObjectCommand
 } from '@aws-sdk/client-s3';
-import { S3Uploader, UploadSingleParams, CreateMultipartUploadParams, UploadPartParams, CompleteMultipartUploadParams } from './s3Uploader';
+import { createWriteStream } from 'fs';
+import { pipeline } from 'stream';
+import { promisify } from 'util';
+import { S3Uploader, UploadSingleParams, CreateMultipartUploadParams, UploadPartParams, CompleteMultipartUploadParams, DownloadParams } from './s3Uploader';
 import { loadConfig } from '../config/loader';
 import { FileInfo } from './types';
+
+const streamPipeline = promisify(pipeline);
 
 export class AwsS3Uploader implements S3Uploader {
     private s3Client: S3Client;
@@ -27,6 +33,21 @@ export class AwsS3Uploader implements S3Uploader {
             },
             forcePathStyle: Boolean(config.FORCE_PATH_STYLE) || true,
         });
+    }
+
+    async download(params: DownloadParams): Promise<void> {
+        const { Bucket, Key, DestinationPath } = params;
+
+        const response = await this.s3Client.send(new GetObjectCommand({ Bucket, Key }));
+
+        if (!response.Body) {
+            throw new Error('Expected response.Body to be defined');
+        }
+
+        const { Readable } = require('stream');
+        const readableStream = Readable.toWeb(response.Body as NodeJS.ReadableStream);
+        const writeStream = createWriteStream(DestinationPath);
+        await streamPipeline(Readable.fromWeb(readableStream), writeStream);
     }
 
     async uploadSingle(params: UploadSingleParams): Promise<void> {
